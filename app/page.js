@@ -34,10 +34,10 @@ export default function Home() {
   }
 
   function calculateStats(allPicks) {
-    const completed = allPicks.filter(p => p.result)
+    const completed = allPicks.filter(p => p.result && p.result !== 'pending')
     const wins = completed.filter(p => p.result === 'win').length
     const losses = completed.filter(p => p.result === 'loss').length
-    const pending = allPicks.filter(p => !p.result).length
+    const pending = allPicks.filter(p => !p.result || p.result === 'pending').length
     const totalProfit = completed.reduce((sum, p) => sum + (p.profit || 0), 0)
     const totalRisked = completed.reduce((sum, p) => sum + p.units, 0)
     const roi = totalRisked > 0 ? (totalProfit / totalRisked) * 100 : 0
@@ -86,7 +86,7 @@ export default function Home() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <div className="text-gray-400 text-sm mb-1">Win Rate</div>
             <div className="text-3xl font-bold">
-              {stats.total > 0 ? ((stats.wins / (stats.wins + stats.losses)) * 100).toFixed(1) : 0}%
+              {stats.wins + stats.losses > 0 ? ((stats.wins / (stats.wins + stats.losses)) * 100).toFixed(1) : 0}%
             </div>
           </div>
           <div className="bg-gray-800 p-6 rounded-lg">
@@ -100,6 +100,7 @@ export default function Home() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <div className="text-gray-400 text-sm mb-1">Record</div>
             <div className="text-3xl font-bold">{stats.wins}-{stats.losses}</div>
+            <div className="text-sm text-gray-400 mt-1">{stats.pending} pending</div>
           </div>
         </div>
 
@@ -118,13 +119,17 @@ export default function Home() {
                       <div className="font-semibold text-lg">{pick.home_team} vs {pick.away_team}</div>
                       <div className="text-gray-400 text-sm">{pick.sport}</div>
                     </div>
-                    {pick.result && (
+                    {pick.result ? (
                       <span className={`px-3 py-1 rounded text-sm font-semibold ${
                         pick.result === 'win' ? 'bg-green-900 text-green-300' :
                         pick.result === 'loss' ? 'bg-red-900 text-red-300' :
                         'bg-gray-700 text-gray-300'
                       }`}>
                         {pick.result.toUpperCase()}
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 rounded text-sm font-semibold bg-yellow-900 text-yellow-300">
+                        PENDING
                       </span>
                     )}
                   </div>
